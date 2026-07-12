@@ -15,9 +15,31 @@ ON c.customer_id = o.customer_id
 GROUP BY c.customer_name
 ORDER BY total_orders DESC;
 
--- Customers with no orders
-SELECT c.customer_name
+--customers without orders
+       SELECT c.customer_name
 FROM customers c
 LEFT JOIN orders o
 ON c.customer_id = o.customer_id
 WHERE o.order_id IS NULL;
+
+--average order value
+SELECT AVG(order_total) AS average_order_value
+FROM (
+SELECT order_id,
+SUM(quantity*price) AS order_total
+FROM order_items oi
+JOIN products p
+ON oi.product_id=p.product_id
+GROUP BY order_id
+)t;
+
+--monthly revenue
+SELECT month(order_date) AS month,
+SUM(quantity * price)AS revenue
+FROM orders o
+JOIN order_items oi
+ON o.order_id=oi.order_id
+JOIN products p
+ON oi.product_id=p.product_id
+GROUP BY month (order_date)
+ORDER BY month;
